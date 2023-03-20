@@ -14,7 +14,6 @@ struct ContentView: View {
     @State var index: Int = 0
     @State var page: Int = 1
 
-    @State var isFetching = false
     private var options = ["popular", "upcoming", "now_playing", "top_rated"]
     
     var body: some View {
@@ -27,9 +26,11 @@ struct ContentView: View {
     func fetchMovies(index: Int){
         // MARK: - Fetch Movies
         let movieManager = MovieManager()
-        movieManager.fetchMovies(typeOfSort: options[index], isFetching: $isFetching, page: page) { movies in
-            self.movies = movies.results
-            self.total_results = movies.total_results
+        movieManager.fetchMovies(typeOfSort: options[index], page: page) { movies in
+            withAnimation{
+                self.movies = movies.results
+                self.total_results = movies.total_results
+            }
         }
     }
 

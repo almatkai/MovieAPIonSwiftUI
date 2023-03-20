@@ -24,85 +24,86 @@ struct HomeView: View {
     @State var flag = true
     
     @State private var scrollUp = false
-    
-    @State var isFetching = false
+    @State var likeArray = [Int]()
     
     var body: some View{
 
         NavigationView{
             ZStack{
-                if isFetching {
-                    ProgressView()
-                } else {
-                    ScrollViewReader { proxy in
-                        ScrollView(showsIndicators: false){
-                            Text("").frame(height: 48)
-                                .id(1)
-                            ForEach(movies) { movie in
-                                NavigationLink(destination: MovieInfoView(movie: movie), label: {
-                                    ZStack {
-                                        KFImage(URL(string: "https://image.tmdb.org/t/p/w500\(movie.backdrop_path)"))
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fit)
-                                            .cornerRadius(15)
-                                            .overlay(
-                                                LinearGradient(
-                                                    gradient: Gradient(colors: [.clear, .black]),
-                                                    startPoint: .top,
-                                                    endPoint: .bottom
-                                                )
-                                                .opacity(1)
-                                                .cornerRadius(15)
+                ScrollViewReader { proxy in
+                    ScrollView(showsIndicators: false){
+                        Text("").frame(height: 48)
+                            .id(1)
+                        ForEach(movies) { movie in
+                            NavigationLink(destination: MovieInfoView(movie: movie), label: {
+                                ZStack {
+                                    KFImage(URL(string: "https://image.tmdb.org/t/p/w500\(movie.backdrop_path)"))
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .cornerRadius(15)
+                                        .overlay(
+                                            LinearGradient(
+                                                gradient: Gradient(colors: [.clear, .black]),
+                                                startPoint: .top,
+                                                endPoint: .bottom
                                             )
-                                        VStack {
-                                            HStack{
-                                                ZStack {
-                                                    RoundedRectangle(cornerRadius: 18)
-                                                        .fill(averageVoteColor(num: movie.vote_average))
-                                                    if (movie.vote_average > 0) {
-                                                        Text(String(format: "%.1f", movie.vote_average))
-                                                            .foregroundColor(.black)
-                                                    }
-                                                    else {
-                                                        Text("?")
-                                                            .foregroundColor(.black)
-                                                    }
+                                            .opacity(1)
+                                            .cornerRadius(15)
+                                        )
+                                    VStack {
+                                        HStack{
+                                            ZStack {
+                                                RoundedRectangle(cornerRadius: 18)
+                                                    .fill(averageVoteColor(num: movie.vote_average))
+                                                if (movie.vote_average > 0) {
+                                                    Text(String(format: "%.1f", movie.vote_average))
+                                                        .foregroundColor(.black)
                                                 }
-                                                .frame(width: 36, height: 36)
-                                                .padding()
-                                                Spacer()
-                                                
-                                                Image(systemName: flag ? "heart" : "heart.fill")
-                                                    .foregroundColor(.red)
-                                                    .font(.system(size: 24))
-                                                    .padding(.horizontal)
-                                                    .onTapGesture {
-                                                        flag.toggle()
-                                                    }
+                                                else {
+                                                    Text("?")
+                                                        .foregroundColor(.black)
+                                                }
                                             }
+                                            .frame(width: 36, height: 36)
+                                            .padding()
                                             Spacer()
                                             
-                                            VStack{
-                                                Text(movie.title)
-                                                    .fontWeight(.bold)
-                                                    .padding(.bottom, 2)
-                                                    .foregroundColor(.white)
-                                                
-                                                let year = movie.release_date.prefix(4)
-                                                Text(year)
-                                                    .font(.system(size: 12))
-                                                    .foregroundColor(.white)
-                                                
-                                            }.padding(.bottom, 20)
+                                            let (isLiked, index) = likeArray.enumerated().first { $0.element == movie.id }.map { (true, $0.offset) } ?? (false, 0)
+                                        
+                                            Image(systemName: isLiked ? "heart.fill" : "heart")
+                                                .foregroundColor(.red)
+                                                .font(.system(size: 24))
+                                                .padding(.horizontal)
+                                                .onTapGesture {
+                                                    if isLiked {
+                                                        likeArray.remove(at: index)
+                                                    } else {
+                                                        likeArray.append(movie.id)
+                                                    }
+                                                }
                                         }
-                                    }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                                        .padding(.vertical, 6)
-                                        .padding(.horizontal, 16)
-                                })
-                                .onChange(of: scrollUp){ scrollUp in
-                                    withAnimation{
-                                        proxy.scrollTo(1)
+                                        Spacer()
+                                        
+                                        VStack{
+                                            Text(movie.title)
+                                                .fontWeight(.bold)
+                                                .padding(.bottom, 2)
+                                                .foregroundColor(.white)
+                                            
+                                            let year = movie.release_date.prefix(4)
+                                            Text(year)
+                                                .font(.system(size: 12))
+                                                .foregroundColor(.white)
+                                            
+                                        }.padding(.bottom, 20)
                                     }
+                                }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                                    .padding(.vertical, 6)
+                                    .padding(.horizontal, 16)
+                            })
+                            .onChange(of: scrollUp){ scrollUp in
+                                withAnimation{
+                                    proxy.scrollTo(1)
                                 }
                             }
                         }
@@ -135,7 +136,7 @@ struct HomeView: View {
                                     page -= 1
                                 }
                             } label: {
-                                Image(systemName: "arrow.backward.circle")
+                                Image(systemName: "arrow.left")
                                     .frame(width: 20)
                                     .foregroundColor(.white)
                             } .padding(6)
@@ -150,7 +151,7 @@ struct HomeView: View {
                                     page += 1
                                 }
                             } label: {
-                                Image(systemName: "arrow.forward.circle")
+                                Image(systemName: "arrow.right")
                                     .frame(width: 20)
                                     .foregroundColor(.white)
                             } .padding(6)
@@ -158,7 +159,7 @@ struct HomeView: View {
                     }
                     .onChange(of: page){ newPage in
                         scrollUp.toggle()
-                        movieManager.fetchMovies(typeOfSort: categoriesLowercased[selectedIndex], isFetching: $isFetching, page: page){ movies in
+                        movieManager.fetchMovies(typeOfSort: categoriesLowercased[selectedIndex], page: page){ movies in
                                 self.movies = movies.results
                                 self.total_results = movies.total_results
                         }
@@ -173,13 +174,13 @@ struct HomeView: View {
                 .onChange(of: selectedIndex) { newValue in
                     page = 1
                     scrollUp.toggle()
-                    movieManager.fetchMovies(typeOfSort: categoriesLowercased[newValue], isFetching: $isFetching, page: page){ movies in
+                    movieManager.fetchMovies(typeOfSort: categoriesLowercased[newValue], page: page){ movies in
                         self.movies = movies.results
                         self.total_results = movies.total_results
                     }
                 }
         }.onAppear{
-            movieManager.fetchMovies(typeOfSort: categoriesLowercased[0], isFetching: $isFetching, page: page){ movies in
+            movieManager.fetchMovies(typeOfSort: categoriesLowercased[0],page: page){ movies in
                         self.movies = movies.results
                         self.total_results = movies.total_results
                     }

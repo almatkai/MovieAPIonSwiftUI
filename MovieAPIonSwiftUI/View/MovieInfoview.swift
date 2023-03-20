@@ -14,6 +14,12 @@ struct MovieInfoView: View {
     @State private var forgroundColor: Color = Color("systemBlack")
 
     let movie: Movie
+    
+    init(movie: Movie) {
+        self.movie = movie
+        
+        UINavigationBar.appearance().standardAppearance = UINavigationBarAppearance()
+    }
     var body: some View {
         NavigationView{
             VStack{
@@ -45,6 +51,7 @@ struct MovieInfoView: View {
                         HStack{
                             Text("Описание отсутствует")
                                     .padding(.bottom, 2)
+                                    .foregroundColor(forgroundColor)
                             Spacer()
                         }
                     }
@@ -53,27 +60,32 @@ struct MovieInfoView: View {
             }
                     .background(backgroundColor)
                     .onAppear {
-                        setAverageColor(url: "https://image.tmdb.org/t/p/w500\(movie.backdrop_path)")
+                        setAverageColor(url:"https://image.tmdb.org/t/p/w500\(movie.backdrop_path)")
                     }
-                    .onChange(of: backgroundColor){ newValue in
-                        forgroundColor = setForegroundBasedOnBackground(backgroundColor: newValue)
-                    }
-        }
+        }.navigationBarBackButtonHidden(true)
+            .navigationBarItems(leading: Button{self.presentationMode.wrappedValue.dismiss()} label: {Image(systemName: "chevron.left").foregroundColor(.black)}.offset(x: 8))
+            .gesture(DragGesture().onEnded { _ in
+                self.presentationMode.wrappedValue.dismiss()
+            })
     }
 
     private func setAverageColor(url: String) {
         guard let imageUrl = URL(string: url) else { return }
         URLSession.shared.dataTask(with: imageUrl) { data, _, error in
-                    guard let data = data, error == nil, let uiImage = UIImage(data: data) else { return }
-                    let group = DispatchGroup()
-                    group.enter()
-                    DispatchQueue.global(qos: .default).async {
-                        backgroundColor = Color(uiImage.averageColor ?? .clear)
-                        group.leave()
-                    }
-                    group.wait()
-                    forgroundColor = setForegroundBasedOnBackground(backgroundColor: backgroundColor)
-                }.resume()
+            guard let data = data, error == nil, let uiImage = UIImage(data: data) else { return }
+            let group = DispatchGroup()
+            group.enter()
+            DispatchQueue.global(qos: .default).async {
+                withAnimation(.easeIn(duration: 1.2)){
+                    backgroundColor = Color(uiImage.averageColor ?? .clear)
+                }
+                group.leave()
+            }
+            group.wait()
+            withAnimation(.easeIn(duration: 1.5)){
+                forgroundColor = setForegroundBasedOnBackground(backgroundColor: backgroundColor)
+            }
+        }.resume()
     }
 
 }

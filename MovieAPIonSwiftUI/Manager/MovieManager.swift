@@ -9,8 +9,7 @@ import Foundation
 import SwiftUI
 
 struct MovieManager {
-    func fetchMovies(typeOfSort: String, isFetching: Binding<Bool>, page: Int, completion: @escaping(MovieModel) -> Void) {
-        isFetching.wrappedValue = true
+    func fetchMovies(typeOfSort: String, page: Int, completion: @escaping(MovieModel) -> Void) {
         guard let url = URL(string: "https://api.themoviedb.org/3/movie/\(typeOfSort)?api_key=e4c34b81df02c39e57793e9118805012&language=ru-Ru&page=\(page)") else { return }
         
         let dataTask = URLSession.shared.dataTask(with: url) { (data, _ , error) in
@@ -32,6 +31,5 @@ struct MovieManager {
         }
         
         dataTask.resume()
-        isFetching.wrappedValue = false
     }
 }
