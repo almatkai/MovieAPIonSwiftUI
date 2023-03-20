@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 struct MovieManager {
-    func fetchMovies(typeOfSort: String, page: Int, completion: @escaping(MovieModel) -> Void) {
+    func fetchMovies(typeOfSort: String, page: Int, completion: @escaping(TotalMovieResultModel) -> Void) {
         guard let url = URL(string: "https://api.themoviedb.org/3/movie/\(typeOfSort)?api_key=e4c34b81df02c39e57793e9118805012&language=ru-Ru&page=\(page)") else { return }
         
         let dataTask = URLSession.shared.dataTask(with: url) { (data, _ , error) in
@@ -20,7 +20,7 @@ struct MovieManager {
             let decoder = JSONDecoder()
             
             do {
-                let decodedData = try decoder.decode(MovieModel.self, from: jsonData)
+                let decodedData = try decoder.decode(TotalMovieResultModel.self, from: jsonData)
                 for _ in decodedData.results {
                     completion(decodedData)
                 }

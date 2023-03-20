@@ -63,7 +63,7 @@ struct MovieInfoView: View {
                         setAverageColor(url:"https://image.tmdb.org/t/p/w500\(movie.backdrop_path)")
                     }
         }.navigationBarBackButtonHidden(true)
-            .navigationBarItems(leading: Button{self.presentationMode.wrappedValue.dismiss()} label: {Image(systemName: "chevron.left").foregroundColor(.black)}.offset(x: 8))
+            .navigationBarItems(leading: Button{self.presentationMode.wrappedValue.dismiss()} label: {Image(systemName: "chevron.left").foregroundColor(forgroundColor)}.offset(x: 8))
             .gesture(DragGesture().onEnded { _ in
                 self.presentationMode.wrappedValue.dismiss()
             })
