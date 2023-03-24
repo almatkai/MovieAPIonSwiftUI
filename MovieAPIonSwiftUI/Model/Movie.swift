@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 struct Movie: Decodable, Identifiable, Equatable {
     let id: Int
@@ -13,7 +14,7 @@ struct Movie: Decodable, Identifiable, Equatable {
     let release_date: String
     let vote_count: Int
     let overview: String
-    let poster_path: String
-    let backdrop_path: String
+    let poster_path: String?
+    var backdrop_path: String?
     let vote_average: Double
 }

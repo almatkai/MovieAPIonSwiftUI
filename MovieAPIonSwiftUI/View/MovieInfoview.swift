@@ -25,10 +25,18 @@ struct MovieInfoView: View {
             VStack{
                 VStack{
                     ZStack{
-                        KFImage(URL(string: "https://image.tmdb.org/t/p/w500\(movie.backdrop_path)"))
+                        if let backdropPath = movie.backdrop_path{
+                            KFImage(URL(string: "https://image.tmdb.org/t/p/w500\(backdropPath)"))
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .cornerRadius(15)
+                        }
+                        else {
+                            Image("placeholder")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .cornerRadius(15)
+                        }
                     }
                     HStack{
                         Text(movie.title)
@@ -40,7 +48,7 @@ struct MovieInfoView: View {
                     }
                     if movie.overview != "" {
                         HStack{
-                            Text("Описание:")
+                            Text("Review:")
                                     .fontWeight(.bold)
                                     .foregroundColor(forgroundColor)
                             Spacer()
@@ -49,7 +57,7 @@ struct MovieInfoView: View {
                                 .foregroundColor(forgroundColor)
                     } else {
                         HStack{
-                            Text("Описание отсутствует")
+                            Text("This movie was not reviewed yet")
                                     .padding(.bottom, 2)
                                     .foregroundColor(forgroundColor)
                             Spacer()
@@ -60,7 +68,10 @@ struct MovieInfoView: View {
             }
                     .background(backgroundColor)
                     .onAppear {
-                        setAverageColor(url:"https://image.tmdb.org/t/p/w500\(movie.backdrop_path)")
+                        if let backDropPath = movie.backdrop_path{
+                            setAverageColor(url:"https://image.tmdb.org/t/p/w500\(backDropPath)")
+                        }
+                        
                     }
         }.navigationBarBackButtonHidden(true)
             .navigationBarItems(leading: Button{self.presentationMode.wrappedValue.dismiss()} label: {Image(systemName: "chevron.left").foregroundColor(forgroundColor)}.offset(x: 8))
@@ -76,24 +87,16 @@ struct MovieInfoView: View {
             let group = DispatchGroup()
             group.enter()
             DispatchQueue.global(qos: .default).async {
-                withAnimation(.easeIn(duration: 1.2)){
+                withAnimation(.easeIn(duration: 1)){
                     backgroundColor = Color(uiImage.averageColor ?? .clear)
                 }
                 group.leave()
             }
             group.wait()
-            withAnimation(.easeIn(duration: 1.5)){
+            withAnimation(.easeIn(duration: 1)){
                 forgroundColor = setForegroundBasedOnBackground(backgroundColor: backgroundColor)
             }
         }.resume()
     }
 
-}
-
-func setForegroundBasedOnBackground(backgroundColor: Color) -> Color {
-    let uiColor = UIColor(backgroundColor)
-    var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
-    uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-    let brightness = ((red * 299) + (green * 587) + (blue * 114)) / 1000
-    return brightness > 0.5 ? .black : .white
 }

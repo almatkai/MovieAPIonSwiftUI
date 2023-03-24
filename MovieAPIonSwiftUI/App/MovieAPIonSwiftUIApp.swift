@@ -12,6 +12,7 @@ struct MovieAPIonSwiftUIApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(MovieViewModel())
         }
     }
 }
