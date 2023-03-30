@@ -30,8 +30,9 @@ struct MovieManager {
             let decoder = JSONDecoder()
             do {
                 let decodedData = try decoder.decode(TotalMovieResultModel.self, from: jsonData!)
-                for _ in decodedData.results {
+                for deo in decodedData.results {
                     completion(decodedData)
+                    print("\(deo)")
                 }
             } catch let DecodingError.dataCorrupted(context) {
                 print("DEBUG CONTEXT: \(context)")

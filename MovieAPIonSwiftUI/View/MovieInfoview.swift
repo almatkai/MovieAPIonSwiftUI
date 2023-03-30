@@ -11,15 +11,10 @@ import Kingfisher
 struct MovieInfoView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var backgroundColor: Color = Color("systemWhite")
-    @State private var forgroundColor: Color = Color("systemBlack")
+    @State private var forgroundColor: Color  = Color("systemBlack")
 
     let movie: Movie
     
-    init(movie: Movie) {
-        self.movie = movie
-        
-        UINavigationBar.appearance().standardAppearance = UINavigationBarAppearance()
-    }
     var body: some View {
         NavigationView{
             VStack{
@@ -39,7 +34,7 @@ struct MovieInfoView: View {
                         }
                     }
                     HStack{
-                        Text(movie.title)
+                        Text(movie.title ?? "Title is missing")
                                 .font(.system(size: 22))
                                 .fontWeight(.heavy)
                                 .padding(.vertical, 10)
@@ -53,7 +48,7 @@ struct MovieInfoView: View {
                                     .foregroundColor(forgroundColor)
                             Spacer()
                         }.padding(.bottom, 2)
-                        Text(movie.overview)
+                        Text(movie.overview!)
                                 .foregroundColor(forgroundColor)
                     } else {
                         HStack{

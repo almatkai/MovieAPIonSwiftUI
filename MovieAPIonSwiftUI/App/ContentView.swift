@@ -16,6 +16,7 @@ struct ContentView: View {
             .onAppear{
                 movieViewModel.fetchMovies()
             }
+            .ignoresSafeArea()
     }
 }
 
